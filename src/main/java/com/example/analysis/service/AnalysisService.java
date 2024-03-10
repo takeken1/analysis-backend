@@ -5,10 +5,15 @@ import org.springframework.stereotype.Service;
 
 import com.example.analysis.form.AnalysisForm;
 import com.example.analysis.openai.OpenAI;
+import com.example.analysis.openai.chat.completions.response.CompletionsChoices;
+import com.example.analysis.openai.chat.completions.response.CompletionsChoicesMessage;
 import com.example.analysis.openai.chat.completions.response.CompletionsResponse;
 import com.example.analysis.openai.models.response.ModelsResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class AnalysisService {
     @Value("${openai.api.key}")
     private String API_KEY;
@@ -41,6 +46,11 @@ public class AnalysisService {
         OpenAI openai = new OpenAI(API_KEY, API_URL, ENDPOINT_COMPLETIONS);
 
         CompletionsResponse response = openai.completions(message);
+
+        response.getChoices().stream()
+                .map(CompletionsChoices::getMessage)
+                .map(CompletionsChoicesMessage::getContent)
+                .forEach(log::info);
 
         return response;
     }
